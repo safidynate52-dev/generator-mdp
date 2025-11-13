@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur De Mot De Passe</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Générateur De Mot De Passe</h1>
+
+    <form id="passwordForm">
+      <h3>Sélectionnez les options de votre mot de passe sécurisé :</h3>
+
+      <label><input type="checkbox" id="numbers" checked> Avec des chiffres [ 0-9 ]</label>
+      <label><input type="checkbox" id="lowercase" checked> Avec des lettres minuscules [ a-z ]</label>
+      <label><input type="checkbox" id="uppercase" checked> Avec des lettres majuscules [ A-Z ]</label>
+      <label><input type="checkbox" id="symbols" checked> Avec des caractères spéciaux [ ~!@#$%^&*()_+ ]</label>
+
+      <label><input type="checkbox" id="excludeSimilar"> Exclure les caractères similaires [ o 0 l 1 I ]</label><br>
+
+      <label>Nombre de caractères : <input type="number" id="length" value="12" min="6" max="50"></label><br><br>
+
+      <button type="button" id="generate">Créer votre mot de passe</button>
+    </form>
+
+    <div class="result">
+      <h3>Résultat :</h3>
+      <div id="passwordOutput">—</div>
+    </div>
+
+    <div class="list">
+      <h3>Mots de passe enregistrés :</h3>
+      <ul>
+        {% for pwd in passwords %}
+          <li>{{ pwd }}</li>
+        {% else %}
+          <li>Aucun mot de passe enregistré.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('generate').addEventListener('click', async () => {
+      const payload = {
+        numbers: document.getElementById('numbers').checked,
+        lowercase: document.getElementById('lowercase').checked,
+        uppercase: document.getElementById('uppercase').checked,
+        symbols: document.getElementById('symbols').checked,
+        excludeSimilar: document.getElementById('excludeSimilar').checked,
+        length: parseInt(document.getElementById('length').value)
+      };
+
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      document.getElementById('passwordOutput').innerText = data.password;
+      location.reload(); // met à jour la liste
+    });
+  </script>
+</body>
+</html>
